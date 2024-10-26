@@ -3,6 +3,7 @@
   mkShellNoCC,
   bazel_7,
   nix,
+  gcc,
 } @ args: let
   packages = lib.attrsets.attrValues (
     builtins.removeAttrs args ["mkShellNoCC" "lib"]
