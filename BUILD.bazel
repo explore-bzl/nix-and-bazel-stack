@@ -42,3 +42,32 @@ platform(
         ":remote",
     ],
 )
+
+genrule(
+    name = "hello-world-static",
+    srcs = [
+        "hello-world.c",
+        "@static_musl_dev//:include",
+        "@static_gcc//:include",
+    ],
+    outs = ["hello-world-stat"],
+    cmd = """
+export LIBRARY_PATH=external/static_musl/lib
+export PATH=/proc/self/cwd/external/static_gcc/bin:/proc/self/cwd/external/static_binutils/bin
+
+$(location @static_gcc//:bin/gcc) \
+  -L external/static_musl/lib \
+  -idirafter external/static_musl_dev/include \
+  -static \
+  $(location :hello-world.c) -o "$@"
+""",
+    tools = [
+        "@static_binutils//:bin",
+        "@static_gcc//:bin",
+        "@static_gcc//:bin/gcc",
+        "@static_gcc//:lib",
+        "@static_gcc//:lib64",
+        "@static_gcc//:libexec",
+        "@static_musl//:lib",
+    ],
+)

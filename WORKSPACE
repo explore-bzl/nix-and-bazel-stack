@@ -54,6 +54,7 @@ load(
     "@io_tweag_rules_nixpkgs//nixpkgs:nixpkgs.bzl",
     "nixpkgs_cc_configure",
     "nixpkgs_local_repository",
+    "nixpkgs_package",
 )
 
 nixpkgs_local_repository(
@@ -67,7 +68,7 @@ nixpkgs_local_repository(
 
 nixpkgs_cc_configure(
     name = "nix_config_cc",
-    attribute_path = "gcc",
+    attribute_path = "pkgsStatic.gcc",
     exec_constraints = [
         "@platforms//os:linux",
         "@platforms//cpu:x86_64",
@@ -78,4 +79,85 @@ nixpkgs_cc_configure(
         "@platforms//os:linux",
         "@platforms//cpu:x86_64",
     ],
+)
+
+nixpkgs_package(
+    name = "static_gcc",
+    attribute_path = "pkgsStatic.gcc-unwrapped",
+    build_file_content = """
+package(default_visibility = ["//visibility:public"])
+
+filegroup(
+    name = "bin",
+    srcs = glob(["bin/*"], allow_empty = True),
+)
+
+filegroup(
+    name = "libexec",
+    srcs = glob(["libexec/**/*"], allow_empty = True),
+)
+
+filegroup(
+    name = "lib",
+    srcs = glob(["lib/**/*"], allow_empty = True),
+)
+
+filegroup(
+    name = "lib64",
+    srcs = glob(["lib64/**/*"], allow_empty = True),
+)
+
+filegroup(
+    name = "include",
+    srcs = glob(["include/**/*"], allow_empty = True),
+)
+""",
+    repository = "@nixpkgs",
+)
+
+nixpkgs_package(
+    name = "static_musl",
+    attribute_path = "pkgsStatic.musl",
+    build_file_content = """
+package(default_visibility = ["//visibility:public"])
+
+filegroup(
+    name = "lib",
+    srcs = glob(["lib/**/*"], allow_empty = True),
+)
+""",
+    repository = "@nixpkgs",
+)
+
+nixpkgs_package(
+    name = "static_musl_dev",
+    attribute_path = "pkgsStatic.musl.dev",
+    build_file_content = """
+package(default_visibility = ["//visibility:public"])
+
+filegroup(
+    name = "include",
+    srcs = glob(["include/**/*"], allow_empty = True),
+)
+""",
+    repository = "@nixpkgs",
+)
+
+nixpkgs_package(
+    name = "static_binutils",
+    attribute_path = "pkgsStatic.binutils-unwrapped",
+    build_file_content = """
+package(default_visibility = ["//visibility:public"])
+
+filegroup(
+    name = "bin",
+    srcs = glob(["bin/*"], allow_empty = True),
+)
+
+filegroup(
+    name = "x86_64-unknown-linux-musl",
+    srcs = glob(["x86_64-unknown-linux-musl/**/*"], allow_empty = True),
+)
+""",
+    repository = "@nixpkgs",
 )
