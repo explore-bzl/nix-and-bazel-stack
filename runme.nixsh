@@ -1,0 +1,16 @@
+#! /usr/bin/env nix-shell
+#! nix-shell -i bash --pure
+
+__=$(command -v nix-shell)
+[ ! -v IN_NIX_SHELL ] && exec env - PATH="${__%/*}:/usr/bin" "$0" "$@"
+
+debug() {
+  printf '\n$ \e[36m%s\e[0m\n' "$BASH_COMMAND"
+}
+shopt -s extdebug 
+trap debug DEBUG
+
+bazel info
+bazel build //...
+bazel clean --expunge
+bazel shutdown
