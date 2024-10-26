@@ -35,49 +35,46 @@ http_archive(
 )
 
 http_archive(
-    name = "gcc_toolchain",
-    integrity = "sha256-iqcSkkfwbhKrNWeX957qE/I4fzKuj3GEB06OZAJ5Apk=",
-    strip_prefix = "gcc-toolchain-0.6.0",
-    patches = [
-        "//bazel:0001-feat-posix-compliant-gcc-wrapper.patch",
-    ],
-    patch_args = ["-p1"],
+    name = "io_tweag_rules_nixpkgs",
+    sha256 = "1adb04dc0416915fef427757f4272c4f7dacefeceeefc50f683aec7f7e9b787a",
+    strip_prefix = "rules_nixpkgs-0.12.0",
     urls = [
-        "https://github.com/f0rmiga/gcc-toolchain/archive/refs/tags/0.6.0.tar.gz",
+        "https://github.com/tweag/rules_nixpkgs/releases/download/v0.12.0/rules_nixpkgs-0.12.0.tar.gz",
     ],
 )
 
 load(
-    "@gcc_toolchain//toolchain:repositories.bzl",
-    "gcc_toolchain_dependencies",
+    "@io_tweag_rules_nixpkgs//nixpkgs:repositories.bzl",
+    "rules_nixpkgs_dependencies",
 )
 
-gcc_toolchain_dependencies()
+rules_nixpkgs_dependencies()
 
 load(
-    "@bazel_skylib//:workspace.bzl",
-    "bazel_skylib_workspace",
+    "@io_tweag_rules_nixpkgs//nixpkgs:nixpkgs.bzl",
+    "nixpkgs_cc_configure",
+    "nixpkgs_local_repository",
 )
 
-bazel_skylib_workspace()
-
-load(
-    "@aspect_bazel_lib//lib:repositories.bzl",
-    "aspect_bazel_lib_dependencies",
+nixpkgs_local_repository(
+    name = "nixpkgs",
+    nix_file_content = "import (import ./nix/sources.nix).nixpkgs",
+    nix_file_deps = [
+        "//:nix/sources.nix",
+        "//:nix/sources.json",
+    ],
 )
 
-aspect_bazel_lib_dependencies()
-
-load(
-    "@gcc_toolchain//toolchain:defs.bzl",
-    "ARCHS",
-    "gcc_register_toolchain",
-)
-
-gcc_register_toolchain(
-    name = "gcc_toolchain_x86_64",
-    target_arch = ARCHS.x86_64,
-    target_compatible_with = [
+nixpkgs_cc_configure(
+    name = "nix_config_cc",
+    attribute_path = "gcc",
+    exec_constraints = [
+        "@platforms//os:linux",
+        "@platforms//cpu:x86_64",
+    ],
+    register = True,
+    repository = "@nixpkgs",
+    target_constraints = [
         "@platforms//os:linux",
         "@platforms//cpu:x86_64",
     ],

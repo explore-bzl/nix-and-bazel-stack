@@ -2,6 +2,58 @@ build:remote --remote_executor=grpcs://buildbarn-grpc.szamszur.cloud
 build:remote --bes_results_url=https://buildbuddy.szamszur.cloud/invocation/
 build:remote --bes_backend=grpcs://buildbuddy-grpc.szamszur.cloud
 
-build:remote --extra_execution_platforms=@starterkit//:ash-x86_64-cc
+build --platforms=//:x86_64-linux
+build --crosstool_top=@nix_config_cc//:toolchain
 
-common --enable_bzlmod=false
+build:local  --extra_execution_platforms=//:host-nix
+build:remote --extra_execution_platforms=//:remote-nix
+
+# General setup
+
+## Bzlmod will only make it more difficult to explain the basics
+## Therefore it needs to take a nap
+## Docs: https://bazel.build/reference/command-line-reference#flag--enable_bzlmod
+common --noenable_bzlmod
+
+## Do not allow any network actions in the sandbox
+## Docs: https://bazel.build/reference/command-line-reference#flag--sandbox_default_allow_network
+build --nosandbox_default_allow_network
+
+## Force sandboxing for all possible tests
+## Docs: https://bazel.build/reference/command-line-reference#flag--incompatible_exclusive_test_sandboxed
+test --incompatible_exclusive_test_sandboxed
+
+## Do not 'inherit' client $PATH, $LD_LIBRARY_PATH in the build env
+## Docs: https://bazel.build/reference/command-line-reference#flag--incompatible_strict_action_env
+build --incompatible_strict_action_env
+
+## Be extremely strict about used shell executable
+## (By default it is embedded - not great for cross-compatibility)
+## Docs: https://bazel.build/reference/command-line-reference#flag--shell_executable
+build --shell_executable=/bin/sh
+
+## Enforce cpp toolchain resolution
+## (Bazel <7 compatibility)
+## Docs: https://github.com/bazelbuild/bazel/blob/7.0.2/src/main/java/com/google/devtools/build/lib/rules/cpp/CppOptions.java#L864
+build --incompatible_enable_cc_toolchain_resolution
+
+# Forbid local machine as executor
+
+## Force CPP_TOOLCHAIN local resolution to give up
+## Docs: https://github.com/bazelbuild/rules_cc/blob/4eccbe17c886abe777ced2fed20c7c4c1ebd7b19/cc/private/toolchain/cc_configure.bzl#L33
+build --action_env=BAZEL_DO_NOT_DETECT_CPP_TOOLCHAIN=1
+
+## Do not attempt to register local host as a platform
+## (Bazel <7 compatibility)
+## Docs: https://github.com/bazelbuild/bazel/issues/6849
+## Docs: https://github.com/bazelbuild/bazel/blob/7f749e927f61a84ef3a8f361ce601db9d2b81fc4/src/main/java/com/google/devtools/build/lib/bazel/rules/BazelRulesModule.java#L163
+build --incompatible_auto_configure_host_platform=false
+
+## Do not attempt to register local host as a platform
+## (Bazel <7 compatibility)
+## Docs: https://github.com/bazelbuild/bazel/blob/7f749e927f61a84ef3a8f361ce601db9d2b81fc4/src/main/java/com/google/devtools/build/lib/bazel/rules/BazelRulesModule.java#L151
+build --target_platform_fallback=@starterkit//:DEV_NULL_PLATFORM
+
+## Force local host to be not usable
+## Docs: https://github.com/bazelbuild/bazel/blob/7f749e927f61a84ef3a8f361ce601db9d2b81fc4/site/en/extending/platforms.md?plain=1#L112
+build --host_platform=@starterkit//:DEV_NULL_PLATFORM

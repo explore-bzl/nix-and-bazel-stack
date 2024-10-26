@@ -11,6 +11,7 @@ shopt -s extdebug
 trap debug DEBUG
 
 bazel info
+bazel build //... --config=local
 bazel build //... --config=remote
 bazel clean --expunge
 bazel shutdown

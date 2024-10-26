@@ -4,3 +4,41 @@ cc_binary(
     name = "hello-world",
     srcs = ["hello-world.cc"],
 )
+
+platform(
+    name = "x86_64-linux",
+    constraint_values = [
+        "@platforms//os:linux",
+        "@platforms//cpu:x86_64",
+    ],
+)
+
+alias(
+    name = "host",
+    actual = ":x86_64-linux",
+)
+
+platform(
+    name = "host-nix",
+    constraint_values = [
+        "@io_tweag_rules_nixpkgs//nixpkgs/constraints:support_nix",
+    ],
+    parents = [
+        ":host",
+    ],
+)
+
+alias(
+    name = "remote",
+    actual = "@starterkit//:ash-x86_64-cc",
+)
+
+platform(
+    name = "remote-nix",
+    constraint_values = [
+        "@io_tweag_rules_nixpkgs//nixpkgs/constraints:support_nix",
+    ],
+    parents = [
+        ":remote",
+    ],
+)
