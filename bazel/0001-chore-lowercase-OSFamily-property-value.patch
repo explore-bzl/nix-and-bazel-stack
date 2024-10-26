@@ -1,0 +1,25 @@
+From 7cdbaf30b88728b26ecd9570146a1dd284ec3fab Mon Sep 17 00:00:00 2001
+From: Artur Stachecki <dev@r2r.sh>
+Date: Sat, 26 Oct 2024 01:29:16 +0000
+Subject: [PATCH] chore: lowercase OSFamily property value
+
+---
+ BUILD.bazel | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/BUILD.bazel b/BUILD.bazel
+index d840de9..f8c0806 100644
+--- a/BUILD.bazel
++++ b/BUILD.bazel
+@@ -12,7 +12,7 @@ platform(
+         "@platforms//cpu:x86_64",
+     ],
+     exec_properties = {
+-        "OSFamily": "Linux",
++        "OSFamily": "linux",
+     },
+ )
+ 
+-- 
+2.47.0
+

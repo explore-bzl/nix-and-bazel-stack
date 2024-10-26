@@ -1,1 +1,7 @@
+build:remote --remote_executor=grpcs://buildbarn-grpc.szamszur.cloud
+build:remote --bes_results_url=https://buildbuddy.szamszur.cloud/invocation/
+build:remote --bes_backend=grpcs://buildbuddy-grpc.szamszur.cloud
+
+build:remote --extra_execution_platforms=@starterkit//:ash
+
 common --enable_bzlmod=false
