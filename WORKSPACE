@@ -38,6 +38,10 @@ http_archive(
     name = "gcc_toolchain",
     integrity = "sha256-iqcSkkfwbhKrNWeX957qE/I4fzKuj3GEB06OZAJ5Apk=",
     strip_prefix = "gcc-toolchain-0.6.0",
+    patches = [
+        "//bazel:0001-feat-posix-compliant-gcc-wrapper.patch",
+    ],
+    patch_args = ["-p1"],
     urls = [
         "https://github.com/f0rmiga/gcc-toolchain/archive/refs/tags/0.6.0.tar.gz",
     ],
