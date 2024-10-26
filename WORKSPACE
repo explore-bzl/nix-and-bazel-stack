@@ -34,3 +34,47 @@ http_archive(
     ],
 )
 
+http_archive(
+    name = "gcc_toolchain",
+    integrity = "sha256-iqcSkkfwbhKrNWeX957qE/I4fzKuj3GEB06OZAJ5Apk=",
+    strip_prefix = "gcc-toolchain-0.6.0",
+    urls = [
+        "https://github.com/f0rmiga/gcc-toolchain/archive/refs/tags/0.6.0.tar.gz",
+    ],
+)
+
+load(
+    "@gcc_toolchain//toolchain:repositories.bzl",
+    "gcc_toolchain_dependencies",
+)
+
+gcc_toolchain_dependencies()
+
+load(
+    "@bazel_skylib//:workspace.bzl",
+    "bazel_skylib_workspace",
+)
+
+bazel_skylib_workspace()
+
+load(
+    "@aspect_bazel_lib//lib:repositories.bzl",
+    "aspect_bazel_lib_dependencies",
+)
+
+aspect_bazel_lib_dependencies()
+
+load(
+    "@gcc_toolchain//toolchain:defs.bzl",
+    "ARCHS",
+    "gcc_register_toolchain",
+)
+
+gcc_register_toolchain(
+    name = "gcc_toolchain_x86_64",
+    target_arch = ARCHS.x86_64,
+    target_compatible_with = [
+        "@platforms//os:linux",
+        "@platforms//cpu:x86_64",
+    ],
+)
